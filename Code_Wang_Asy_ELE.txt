@@ -1,0 +1,946 @@
+##############
+#load Package
+library(cluster)
+library(vegan) 
+library(ape)
+library(ggplot2)
+library(grid)
+library(lattice)
+library(remotes)
+library(readxl)
+library(ggrepel)
+library(readxl)
+library(ggplot2)
+library(car)
+library(grid)
+library(plyr)
+library(lavaan) 
+library(piecewiseSEM) 
+library(semPlot)
+library(lavaanPlot)
+library(cpa)
+library(nlme)
+library(lme4)
+library(rfPermute)
+library(ppcor)
+library(psych)
+library(pheatmap)
+
+#Load data----
+#setup directory
+setwd("C:/Users/wangb/Desktop")
+data <- read_excel("Asy_GI.xlsx",2)
+AB <- data.frame(data)
+colnames(AB)
+
+#############Bar Plots
+data_summary <- function(data, varname, groupnames) {
+  require(plyr)
+  summary_func <- function(x, col) {
+    c(
+      mean = mean(x[[col]], na.rm = TRUE),
+      sem = sd(x[[col]], na.rm = TRUE) / sqrt(length(x[[col]]))
+    )
+  }
+  data_sum <- ddply(data, groupnames,
+                    .fun = summary_func,
+                    varname
+  )
+  data_sum <- rename(data_sum, c("mean" = varname))
+  return(data_sum)
+}
+
+##################################################################Figure_2
+B1<-ggplot(data_summary(AB,varname="AboveRich",groupnames=c("GI","Treat")),aes(x=GI,y=AboveRich,group=GI,color=Treat))+geom_pointrange(aes(ymin=AboveRich-sem,ymax=AboveRich+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B2<-ggplot(data_summary(AB,varname="AboveBeta",groupnames=c("GI","Treat")),aes(x=GI,y=AboveBeta,group=GI,color=Treat))+geom_pointrange(aes(ymin=AboveBeta-sem,ymax=AboveBeta+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B3<-ggplot(data_summary(AB,varname="AboveAsy",groupnames=c("GI","Treat")),aes(x=GI,y=AboveAsy,group=GI,color=Treat))+geom_pointrange(aes(ymin=AboveAsy-sem,ymax=AboveAsy+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B4<-ggplot(data_summary(AB,varname="BelowRich",groupnames=c("GI","Treat")),aes(x=GI,y=BelowRich,group=GI,color=Treat))+geom_pointrange(aes(ymin=BelowRich-sem,ymax=BelowRich+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B5<-ggplot(data_summary(AB,varname="BelowBeta",groupnames=c("GI","Treat")),aes(x=GI,y=BelowBeta,group=GI,color=Treat))+geom_pointrange(aes(ymin=BelowBeta-sem,ymax=BelowBeta+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B6<-ggplot(data_summary(AB,varname="BelowAsy",groupnames=c("GI","Treat")),aes(x=GI,y=BelowAsy,group=GI,color=Treat))+geom_pointrange(aes(ymin=BelowAsy-sem,ymax=BelowAsy+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+
+pdf("Fig_2.pdf", width=18, height=8)
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(3, 4)))
+vplayout <- function(x, y)
+  viewport(layout.pos.row = x, layout.pos.col = y)
+print(B1, vp = vplayout(1, 1))
+print(B2, vp = vplayout(2, 1))
+print(B3, vp = vplayout(3, 1))
+print(B4, vp = vplayout(1, 2))
+print(B5, vp = vplayout(2, 2))
+print(B6, vp = vplayout(3, 2))
+dev.off()
+
+##################################################################Figure_3
+B1<-ggplot(data_summary(AB,varname="AllSB",groupnames=c("GI","Treat")),aes(x=GI,y=AllSB,group=GI,color=Treat))+geom_pointrange(aes(ymin=AllSB-sem,ymax=AllSB+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B2<-ggplot(data_summary(AB,varname="AllM",groupnames=c("GI","Treat")),aes(x=GI,y=AllM,group=GI,color=Treat))+geom_pointrange(aes(ymin=AllM-sem,ymax=AllM+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B3<-ggplot(data_summary(AB,varname="AllSD",groupnames=c("GI","Treat")),aes(x=GI,y=AllSD,group=GI,color=Treat))+geom_pointrange(aes(ymin=AllSD-sem,ymax=AllSD+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B4<-ggplot(data_summary(AB,varname="AboveSB",groupnames=c("GI","Treat")),aes(x=GI,y=AboveSB,group=GI,color=Treat))+geom_pointrange(aes(ymin=AboveSB-sem,ymax=AboveSB+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B5<-ggplot(data_summary(AB,varname="AboveM",groupnames=c("GI","Treat")),aes(x=GI,y=AboveM,group=GI,color=Treat))+geom_pointrange(aes(ymin=AboveM-sem,ymax=AboveM+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B6<-ggplot(data_summary(AB,varname="AboveSD",groupnames=c("GI","Treat")),aes(x=GI,y=AboveSD,group=GI,color=Treat))+geom_pointrange(aes(ymin=AboveSD-sem,ymax=AboveSD+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B7<-ggplot(data_summary(AB,varname="BelowSB",groupnames=c("GI","Treat")),aes(x=GI,y=BelowSB,group=GI,color=Treat))+geom_pointrange(aes(ymin=BelowSB-sem,ymax=BelowSB+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B8<-ggplot(data_summary(AB,varname="BelowM",groupnames=c("GI","Treat")),aes(x=GI,y=BelowM,group=GI,color=Treat))+geom_pointrange(aes(ymin=BelowM-sem,ymax=BelowM+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B9<-ggplot(data_summary(AB,varname="BelowSD",groupnames=c("GI","Treat")),aes(x=GI,y=BelowSD,group=GI,color=Treat))+geom_pointrange(aes(ymin=BelowSD-sem,ymax=BelowSD+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+
+pdf("Fig_3.pdf", width=18, height=8)
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(3, 4)))
+vplayout <- function(x, y)
+  viewport(layout.pos.row = x, layout.pos.col = y)
+print(B1, vp = vplayout(1, 1))
+print(B2, vp = vplayout(1, 2))
+print(B3, vp = vplayout(1, 3))
+print(B4, vp = vplayout(2, 1))
+print(B5, vp = vplayout(2, 2))
+print(B6, vp = vplayout(2, 3))
+print(B7, vp = vplayout(3, 1))
+print(B8, vp = vplayout(3, 2))
+print(B9, vp = vplayout(3, 3))
+dev.off()
+
+
+##################################################################Figure_4a_TMF
+M2 <- list(
+  lme(PH~GRR+N+W,random=~1|Plot, data=AB),
+  lme(SM~GRR+W,random=~1|Plot, data=AB),
+  lme(SOC~GRR+N,random=~1|Plot, data=AB),
+  lme(AboveRich~W+BelowAsy,random=~1|Plot, data=AB),
+  lme(AboveBeta~GRR+N,random=~1|Plot,data=AB),
+  lme(BelowBeta~GRR+PH+BelowAsy,random=~1|Plot,data=AB),
+  lme(AllM~N+W+SM+BelowBeta,random=~1|Plot,data=AB),
+  lme(AllSD~AboveAsy+SM,random=~1|Plot,data=AB),
+  lme(AllSB~BelowAsy+AboveAsy,random=~1|Plot,data=AB),
+  SOC%~~%SM,
+  AllSD%~~%AllSB,
+  AllSD%~~%AllM)
+summary(as.psem(M2), .progressBar = F)
+plot(as.psem(M2))
+
+##################################################################Figure_4a_ANPP
+M2<- list(
+  lme(PH~GRR+N+W,random=~1|Plot, data=AB),
+  lme(SM~GRR+W,random=~1|Plot, data=AB),
+  lme(SOC~GRR+N,random=~1|Plot, data=AB),
+  lme(AboveRich~W+BelowAsy,random=~1|Plot, data=AB),
+  lme(AboveBeta~GRR+N,random=~1|Plot,data=AB),
+  lme(BelowBeta~GRR+PH+BelowAsy,random=~1|Plot,data=AB),
+  lme(AboveM~N+AboveBeta+SM+SOC,random=~1|Plot,data=AB),
+  lme(AboveSD~AboveAsy+SM,random=~1|Plot,data=AB),
+  lme(AboveSB~AboveAsy,random=~1|Plot,data=AB),
+  SOC%~~%SM,
+  AboveSD%~~%AboveSB,
+  AboveSD%~~%AboveM,
+  AboveM%~~%AboveSB)
+
+summary(as.psem(M2), .progressBar = F)
+plot(as.psem(M2))
+
+##################################################################Figure_4a_BMF
+M2<- list(
+  lme(PH~GRR+N+W,random=~1|Plot, data=AB),
+  lme(SM~GRR+W,random=~1|Plot, data=AB),
+  lme(SOC~GRR+N,random=~1|Plot, data=AB),
+  lme(AboveRich~W+BelowAsy,random=~1|Plot, data=AB),
+  lme(AboveBeta~GRR+N,random=~1|Plot,data=AB),
+  lme(BelowBeta~GRR+PH+BelowAsy,random=~1|Plot,data=AB),
+  lme(BelowM~N+W+SM+BelowBeta,random=~1|Plot,data=AB),
+  lme(BelowSB~BelowAsy,random=~1|Plot,data=AB),
+  SOC%~~%SM,
+  BelowSD%~~%BelowSB)
+
+summary(as.psem(M2),.progressBar = F)
+plot(as.psem(M2))
+
+
+#Load data----
+setwd("C:/Users/wangb/Desktop")
+data <- read_excel("Asy_GI.xlsx",4)
+AB <- data.frame(data)
+colnames(AB)
+##################################################################Figure_4b_TMF
+M2 <- list(
+  lm(All.sta~Below.asy+Above.asy,data=AB),
+  lm(Above.asy~ Above.rich, data=AB),
+  lm(Below.asy~ Below.rich, data=AB),
+  lm(All.sd~Below.asy, data=AB),All.sd%~~%All.sta, All.mean%~~%All.sd)
+summary(as.psem(M2), .progressBar = F)
+plot(as.psem(M2))
+
+##################################################################Figure_4b_ANPP
+M2 <- list(
+  lm(Above.sta~Above.rich+Above.asy,data=AB),
+  lm(Above.asy~ Above.rich, data=AB),
+  lm(Below.asy~ Below.rich, data=AB),
+  lm(Above.sd~Above.rich+Above.asy, data=AB),Above.sd%~~%Above.sta,Above.mean%~~%Above.sd)
+summary(as.psem(M2), .progressBar = F)
+plot(as.psem(M2))
+
+##################################################################Figure_4b_BMF
+M2 <- list(
+  lm(Below.sta~Below.asy,data=AB),
+  lm(Above.asy~ Above.rich, data=AB),
+  lm(Below.asy~ Below.rich, data=AB),
+  lm(Below.sd~ Below.asy, data=AB),Below.sd%~~%Below.sta, Below.mean%~~%Below.sd)
+summary(as.psem(M2), .progressBar = F)
+plot(as.psem(M2))
+
+
+#Load data----
+setwd("C:/Users/wangb/Desktop")
+data <- read_excel("Asy_GI.xlsx",2)
+AB <- data.frame(data)
+colnames(AB)
+##################################################################Figure_S1
+B1<-ggplot(data_summary(AB,varname="ABRich",groupnames=c("GI","Treat")),aes(x=GI,y=ABRich,group=GI,color=Treat))+geom_pointrange(aes(ymin=ABRich-sem,ymax=ABRich+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B2<-ggplot(data_summary(AB,varname="PBRich",groupnames=c("GI","Treat")),aes(x=GI,y=PBRich,group=GI,color=Treat))+geom_pointrange(aes(ymin=PBRich-sem,ymax=PBRich+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B3<-ggplot(data_summary(AB,varname="PFRich",groupnames=c("GI","Treat")),aes(x=GI,y=PFRich,group=GI,color=Treat))+geom_pointrange(aes(ymin=PFRich-sem,ymax=PFRich+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B4<-ggplot(data_summary(AB,varname="PRRich",groupnames=c("GI","Treat")),aes(x=GI,y=PRRich,group=GI,color=Treat))+geom_pointrange(aes(ymin=PRRich-sem,ymax=PRRich+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B5<-ggplot(data_summary(AB,varname="ABBeta",groupnames=c("GI","Treat")),aes(x=GI,y=ABBeta,group=GI,color=Treat))+geom_pointrange(aes(ymin=ABBeta-sem,ymax=ABBeta+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B6<-ggplot(data_summary(AB,varname="PBBeta",groupnames=c("GI","Treat")),aes(x=GI,y=PBBeta,group=GI,color=Treat))+geom_pointrange(aes(ymin=PBBeta-sem,ymax=PBBeta+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B7<-ggplot(data_summary(AB,varname="PFBeta",groupnames=c("GI","Treat")),aes(x=GI,y=PFBeta,group=GI,color=Treat))+geom_pointrange(aes(ymin=PFBeta-sem,ymax=PFBeta+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B8<-ggplot(data_summary(AB,varname="PRBeta",groupnames=c("GI","Treat")),aes(x=GI,y=PRBeta,group=GI,color=Treat))+geom_pointrange(aes(ymin=PRBeta-sem,ymax=PRBeta+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B9<-ggplot(data_summary(AB,varname="ABAsy",groupnames=c("GI","Treat")),aes(x=GI,y=ABAsy,group=GI,color=Treat))+geom_pointrange(aes(ymin=ABAsy-sem,ymax=ABAsy+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B10<-ggplot(data_summary(AB,varname="PBAsy",groupnames=c("GI","Treat")),aes(x=GI,y=PBAsy,group=GI,color=Treat))+geom_pointrange(aes(ymin=PBAsy-sem,ymax=PBAsy+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B11<-ggplot(data_summary(AB,varname="PFAsy",groupnames=c("GI","Treat")),aes(x=GI,y=PFAsy,group=GI,color=Treat))+geom_pointrange(aes(ymin=PFAsy-sem,ymax=PFAsy+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B12<-ggplot(data_summary(AB,varname="PRAsy",groupnames=c("GI","Treat")),aes(x=GI,y=PRAsy,group=GI,color=Treat))+geom_pointrange(aes(ymin=PRAsy-sem,ymax=PRAsy+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+
+pdf("Fig_S1.pdf", width=18, height=8)
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(3, 4)))
+vplayout <- function(x, y)
+  viewport(layout.pos.row = x, layout.pos.col = y)
+print(B1, vp = vplayout(1, 1))
+print(B2, vp = vplayout(1, 2))
+print(B3, vp = vplayout(1, 3))
+print(B4, vp = vplayout(1, 4))
+print(B5, vp = vplayout(2, 1))
+print(B6, vp = vplayout(2, 2))
+print(B7, vp = vplayout(2, 3))
+print(B8, vp = vplayout(2, 4))
+print(B9, vp = vplayout(3, 1))
+print(B10, vp = vplayout(3, 2))
+print(B11, vp = vplayout(3, 3))
+print(B12, vp = vplayout(3, 4))
+dev.off()
+
+##################################################################Figure_S2
+B1<-ggplot(data_summary(AB,varname="BRich",groupnames=c("GI","Treat")),aes(x=GI,y=BRich,group=GI,color=Treat))+geom_pointrange(aes(ymin=BRich-sem,ymax=BRich+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B2<-ggplot(data_summary(AB,varname="FRich",groupnames=c("GI","Treat")),aes(x=GI,y=FRich,group=GI,color=Treat))+geom_pointrange(aes(ymin=FRich-sem,ymax=FRich+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B3<-ggplot(data_summary(AB,varname="NRich",groupnames=c("GI","Treat")),aes(x=GI,y=NRich,group=GI,color=Treat))+geom_pointrange(aes(ymin=NRich-sem,ymax=NRich+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B4<-ggplot(data_summary(AB,varname="BBeta",groupnames=c("GI","Treat")),aes(x=GI,y=BBeta,group=GI,color=Treat))+geom_pointrange(aes(ymin=BBeta-sem,ymax=BBeta+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B5<-ggplot(data_summary(AB,varname="FBeta",groupnames=c("GI","Treat")),aes(x=GI,y=FBeta,group=GI,color=Treat))+geom_pointrange(aes(ymin=FBeta-sem,ymax=FBeta+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B6<-ggplot(data_summary(AB,varname="NBeta",groupnames=c("GI","Treat")),aes(x=GI,y=NBeta,group=GI,color=Treat))+geom_pointrange(aes(ymin=NBeta-sem,ymax=NBeta+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B7<-ggplot(data_summary(AB,varname="BAsy",groupnames=c("GI","Treat")),aes(x=GI,y=BAsy,group=GI,color=Treat))+geom_pointrange(aes(ymin=BAsy-sem,ymax=BAsy+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B8<-ggplot(data_summary(AB,varname="FAsy",groupnames=c("GI","Treat")),aes(x=GI,y=FAsy,group=GI,color=Treat))+geom_pointrange(aes(ymin=FAsy-sem,ymax=FAsy+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B9<-ggplot(data_summary(AB,varname="NAsy",groupnames=c("GI","Treat")),aes(x=GI,y=NAsy,group=GI,color=Treat))+geom_pointrange(aes(ymin=NAsy-sem,ymax=NAsy+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+
+pdf("Fig_S2.pdf", width=18, height=8)
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(3, 4)))
+vplayout <- function(x, y)
+  viewport(layout.pos.row = x, layout.pos.col = y)
+print(B1, vp = vplayout(1, 1))
+print(B2, vp = vplayout(1, 2))
+print(B3, vp = vplayout(1, 3))
+print(B4, vp = vplayout(2, 1))
+print(B5, vp = vplayout(2, 2))
+print(B6, vp = vplayout(2, 3))
+print(B7, vp = vplayout(3, 1))
+print(B8, vp = vplayout(3, 2))
+print(B9, vp = vplayout(3, 3))
+dev.off()
+
+##################################################################Figure_S3
+B1<-ggplot(data_summary(AB,varname="BCRich",groupnames=c("GI","Treat")),aes(x=GI,y=BCRich,group=GI,color=Treat))+geom_pointrange(aes(ymin=BCRich-sem,ymax=BCRich+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B2<-ggplot(data_summary(AB,varname="BNRich",groupnames=c("GI","Treat")),aes(x=GI,y=BNRich,group=GI,color=Treat))+geom_pointrange(aes(ymin=BNRich-sem,ymax=BNRich+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B3<-ggplot(data_summary(AB,varname="BCBeta",groupnames=c("GI","Treat")),aes(x=GI,y=BCBeta,group=GI,color=Treat))+geom_pointrange(aes(ymin=BCBeta-sem,ymax=BCBeta+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B4<-ggplot(data_summary(AB,varname="BNBeta",groupnames=c("GI","Treat")),aes(x=GI,y=BNBeta,group=GI,color=Treat))+geom_pointrange(aes(ymin=BNBeta-sem,ymax=BNBeta+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B5<-ggplot(data_summary(AB,varname="BCAsy",groupnames=c("GI","Treat")),aes(x=GI,y=BCAsy,group=GI,color=Treat))+geom_pointrange(aes(ymin=BCAsy-sem,ymax=BCAsy+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B6<-ggplot(data_summary(AB,varname="BNAsy",groupnames=c("GI","Treat")),aes(x=GI,y=BNAsy,group=GI,color=Treat))+geom_pointrange(aes(ymin=BNAsy-sem,ymax=BNAsy+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+
+pdf("Fig_S3.pdf", width=18, height=8)
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(3, 4)))
+vplayout <- function(x, y)
+  viewport(layout.pos.row = x, layout.pos.col = y)
+print(B1, vp = vplayout(1, 1))
+print(B2, vp = vplayout(1, 2))
+print(B3, vp = vplayout(2, 1))
+print(B4, vp = vplayout(2, 2))
+print(B5, vp = vplayout(3, 1))
+print(B6, vp = vplayout(3, 2))
+dev.off()
+
+##################################################################Figure_S4
+B1<-ggplot(data_summary(AB,varname="SapRich",groupnames=c("GI","Treat")),aes(x=GI,y=SapRich,group=GI,color=Treat))+geom_pointrange(aes(ymin=SapRich-sem,ymax=SapRich+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B2<-ggplot(data_summary(AB,varname="PathRich",groupnames=c("GI","Treat")),aes(x=GI,y=PathRich,group=GI,color=Treat))+geom_pointrange(aes(ymin=PathRich-sem,ymax=PathRich+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B3<-ggplot(data_summary(AB,varname="AMFRich",groupnames=c("GI","Treat")),aes(x=GI,y=AMFRich,group=GI,color=Treat))+geom_pointrange(aes(ymin=AMFRich-sem,ymax=AMFRich+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B4<-ggplot(data_summary(AB,varname="SapBeta",groupnames=c("GI","Treat")),aes(x=GI,y=SapBeta,group=GI,color=Treat))+geom_pointrange(aes(ymin=SapBeta-sem,ymax=SapBeta+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B5<-ggplot(data_summary(AB,varname="PathBeta",groupnames=c("GI","Treat")),aes(x=GI,y=PathBeta,group=GI,color=Treat))+geom_pointrange(aes(ymin=PathBeta-sem,ymax=PathBeta+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B6<-ggplot(data_summary(AB,varname="AMFBeta",groupnames=c("GI","Treat")),aes(x=GI,y=AMFBeta,group=GI,color=Treat))+geom_pointrange(aes(ymin=AMFBeta-sem,ymax=AMFBeta+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B7<-ggplot(data_summary(AB,varname="SapAsy",groupnames=c("GI","Treat")),aes(x=GI,y=SapAsy,group=GI,color=Treat))+geom_pointrange(aes(ymin=SapAsy-sem,ymax=SapAsy+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B8<-ggplot(data_summary(AB,varname="PathAsy",groupnames=c("GI","Treat")),aes(x=GI,y=PathAsy,group=GI,color=Treat))+geom_pointrange(aes(ymin=PathAsy-sem,ymax=PathAsy+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B9<-ggplot(data_summary(AB,varname="AMFAsy",groupnames=c("GI","Treat")),aes(x=GI,y=AMFAsy,group=GI,color=Treat))+geom_pointrange(aes(ymin=AMFAsy-sem,ymax=AMFAsy+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+
+pdf("Fig_S4.pdf", width=18, height=8)
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(3, 4)))
+vplayout <- function(x, y)
+  viewport(layout.pos.row = x, layout.pos.col = y)
+print(B1, vp = vplayout(1, 1))
+print(B2, vp = vplayout(1, 2))
+print(B3, vp = vplayout(1, 3))
+print(B4, vp = vplayout(2, 1))
+print(B5, vp = vplayout(2, 2))
+print(B6, vp = vplayout(2, 3))
+print(B7, vp = vplayout(3, 1))
+print(B8, vp = vplayout(3, 2))
+print(B9, vp = vplayout(3, 3))
+dev.off()
+
+##################################################################Figure_S5
+B1<-ggplot(data_summary(AB,varname="BFRich",groupnames=c("GI","Treat")),aes(x=GI,y=BFRich,group=GI,color=Treat))+geom_pointrange(aes(ymin=BFRich-sem,ymax=BFRich+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B2<-ggplot(data_summary(AB,varname="FFRich",groupnames=c("GI","Treat")),aes(x=GI,y=FFRich,group=GI,color=Treat))+geom_pointrange(aes(ymin=FFRich-sem,ymax=FFRich+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B3<-ggplot(data_summary(AB,varname="HFRich",groupnames=c("GI","Treat")),aes(x=GI,y=HFRich,group=GI,color=Treat))+geom_pointrange(aes(ymin=HFRich-sem,ymax=HFRich+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B4<-ggplot(data_summary(AB,varname="OCRich",groupnames=c("GI","Treat")),aes(x=GI,y=OCRich,group=GI,color=Treat))+geom_pointrange(aes(ymin=OCRich-sem,ymax=OCRich+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B5<-ggplot(data_summary(AB,varname="BFBeta",groupnames=c("GI","Treat")),aes(x=GI,y=BFBeta,group=GI,color=Treat))+geom_pointrange(aes(ymin=BFBeta-sem,ymax=BFBeta+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B6<-ggplot(data_summary(AB,varname="FFBeta",groupnames=c("GI","Treat")),aes(x=GI,y=FFBeta,group=GI,color=Treat))+geom_pointrange(aes(ymin=FFBeta-sem,ymax=FFBeta+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B7<-ggplot(data_summary(AB,varname="HFBeta",groupnames=c("GI","Treat")),aes(x=GI,y=HFBeta,group=GI,color=Treat))+geom_pointrange(aes(ymin=HFBeta-sem,ymax=HFBeta+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B8<-ggplot(data_summary(AB,varname="OCBeta",groupnames=c("GI","Treat")),aes(x=GI,y=OCBeta,group=GI,color=Treat))+geom_pointrange(aes(ymin=OCBeta-sem,ymax=OCBeta+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B9<-ggplot(data_summary(AB,varname="BFAsy",groupnames=c("GI","Treat")),aes(x=GI,y=BFAsy,group=GI,color=Treat))+geom_pointrange(aes(ymin=BFAsy-sem,ymax=BFAsy+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B10<-ggplot(data_summary(AB,varname="FFAsy",groupnames=c("GI","Treat")),aes(x=GI,y=FFAsy,group=GI,color=Treat))+geom_pointrange(aes(ymin=FFAsy-sem,ymax=FFAsy+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B11<-ggplot(data_summary(AB,varname="HFAsy",groupnames=c("GI","Treat")),aes(x=GI,y=HFAsy,group=GI,color=Treat))+geom_pointrange(aes(ymin=HFAsy-sem,ymax=HFAsy+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B12<-ggplot(data_summary(AB,varname="OCAsy",groupnames=c("GI","Treat")),aes(x=GI,y=OCAsy,group=GI,color=Treat))+geom_pointrange(aes(ymin=OCAsy-sem,ymax=OCAsy+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+
+pdf("Fig_S5.pdf", width=18, height=8)
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(3, 4)))
+vplayout <- function(x, y)
+  viewport(layout.pos.row = x, layout.pos.col = y)
+print(B1, vp = vplayout(1, 1))
+print(B2, vp = vplayout(1, 2))
+print(B3, vp = vplayout(1, 3))
+print(B4, vp = vplayout(1, 4))
+print(B5, vp = vplayout(2, 1))
+print(B6, vp = vplayout(2, 2))
+print(B7, vp = vplayout(2, 3))
+print(B8, vp = vplayout(2, 4))
+print(B9, vp = vplayout(3, 1))
+print(B10, vp = vplayout(3, 2))
+print(B11, vp = vplayout(3, 3))
+print(B12, vp = vplayout(3, 4))
+dev.off()
+
+##################################################################Figure_S6
+B1<-ggplot(data_summary(AB,varname="CminSB",groupnames=c("GI","Treat")),aes(x=GI,y=CminSB,group=GI,color=Treat))+geom_pointrange(aes(ymin=CminSB-sem,ymax=CminSB+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B2<-ggplot(data_summary(AB,varname="NminSB",groupnames=c("GI","Treat")),aes(x=GI,y=NminSB,group=GI,color=Treat))+geom_pointrange(aes(ymin=NminSB-sem,ymax=NminSB+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B3<-ggplot(data_summary(AB,varname="RSSB",groupnames=c("GI","Treat")),aes(x=GI,y=RSSB,group=GI,color=Treat))+geom_pointrange(aes(ymin=RSSB-sem,ymax=RSSB+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B4<-ggplot(data_summary(AB,varname="TMBSB",groupnames=c("GI","Treat")),aes(x=GI,y=TMBSB,group=GI,color=Treat))+geom_pointrange(aes(ymin=TMBSB-sem,ymax=TMBSB+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B5<-ggplot(data_summary(AB,varname="TNASB",groupnames=c("GI","Treat")),aes(x=GI,y=TNASB,group=GI,color=Treat))+geom_pointrange(aes(ymin=TNASB-sem,ymax=TNASB+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+
+pdf("Fig_S6.pdf", width=18, height=8)
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(3, 4)))
+vplayout <- function(x, y)
+  viewport(layout.pos.row = x, layout.pos.col = y)
+print(B1, vp = vplayout(1, 1))
+print(B2, vp = vplayout(2, 1))
+print(B3, vp = vplayout(2, 2))
+print(B4, vp = vplayout(3, 1))
+print(B5, vp = vplayout(3, 2))
+dev.off()
+
+##################################################################Figure_S7
+B1<-ggplot(data_summary(AB,varname="CminM",groupnames=c("GI","Treat")),aes(x=GI,y=CminM,group=GI,color=Treat))+geom_pointrange(aes(ymin=CminM-sem,ymax=CminM+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B2<-ggplot(data_summary(AB,varname="NminM",groupnames=c("GI","Treat")),aes(x=GI,y=NminM,group=GI,color=Treat))+geom_pointrange(aes(ymin=NminM-sem,ymax=NminM+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B3<-ggplot(data_summary(AB,varname="RSM",groupnames=c("GI","Treat")),aes(x=GI,y=RSM,group=GI,color=Treat))+geom_pointrange(aes(ymin=RSM-sem,ymax=RSM+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B4<-ggplot(data_summary(AB,varname="TMBM",groupnames=c("GI","Treat")),aes(x=GI,y=TMBM,group=GI,color=Treat))+geom_pointrange(aes(ymin=TMBM-sem,ymax=TMBM+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B5<-ggplot(data_summary(AB,varname="TNAM",groupnames=c("GI","Treat")),aes(x=GI,y=TNAM,group=GI,color=Treat))+geom_pointrange(aes(ymin=TNAM-sem,ymax=TNAM+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+
+pdf("Fig_S7.pdf", width=18, height=8)
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(3, 4)))
+vplayout <- function(x, y)
+  viewport(layout.pos.row = x, layout.pos.col = y)
+print(B1, vp = vplayout(1, 1))
+print(B2, vp = vplayout(2, 1))
+print(B3, vp = vplayout(2, 2))
+print(B4, vp = vplayout(3, 1))
+print(B5, vp = vplayout(3, 2))
+dev.off()
+
+##################################################################Figure_S8
+B1<-ggplot(data_summary(AB,varname="CminSD",groupnames=c("GI","Treat")),aes(x=GI,y=CminSD,group=GI,color=Treat))+geom_pointrange(aes(ymin=CminSD-sem,ymax=CminSD+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B2<-ggplot(data_summary(AB,varname="NminSD",groupnames=c("GI","Treat")),aes(x=GI,y=NminSD,group=GI,color=Treat))+geom_pointrange(aes(ymin=NminSD-sem,ymax=NminSD+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B3<-ggplot(data_summary(AB,varname="RSSD",groupnames=c("GI","Treat")),aes(x=GI,y=RSSD,group=GI,color=Treat))+geom_pointrange(aes(ymin=RSSD-sem,ymax=RSSD+sem,group=Treat), position=position_dodge(width=0.7), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B4<-ggplot(data_summary(AB,varname="TMBSD",groupnames=c("GI","Treat")),aes(x=GI,y=TMBSD,group=GI,color=Treat))+geom_pointrange(aes(ymin=TMBSD-sem,ymax=TMBSD+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+B5<-ggplot(data_summary(AB,varname="TNASD",groupnames=c("GI","Treat")),aes(x=GI,y=TNASD,group=GI,color=Treat))+geom_pointrange(aes(ymin=TNASD-sem,ymax=TNASD+sem,group=Treat), position=position_dodge(width=0.8), size=0.7)+scale_color_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+scale_fill_manual(values=c("#F8766D","#7CAE00","#00BFC4","#C77CFF"))+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",size=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",size=0.1,lineend = 1))
+
+pdf("Fig_S8.pdf", width=18, height=8)
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(3, 4)))
+vplayout <- function(x, y)
+  viewport(layout.pos.row = x, layout.pos.col = y)
+print(B1, vp = vplayout(1, 1))
+print(B2, vp = vplayout(2, 1))
+print(B3, vp = vplayout(2, 2))
+print(B4, vp = vplayout(3, 1))
+print(B5, vp = vplayout(3, 2))
+dev.off()
+
+##################################################################Figure_S9
+setwd("C:/Users/wangb/Desktop")
+data <- read_excel("Asy_GI.xlsx",2)
+AB <- data.frame(data)
+colnames(AB)
+rows <- data.frame(PH=AB$PH,SM=AB$SM,SOC=AB$SOC,AboveRich=AB$AboveRich,AboveBeta=AB$AboveBeta,AboveAsy=AB$AboveAsy,BelowRich=AB$BelowRich,BelowBeta=AB$BelowBeta,BelowAsy=AB$BelowAsy,BRich=AB$BRich,BBeta=AB$BBeta,BAsy=AB$BAsy,FRich=AB$FRich,FBeta=AB$FBeta,FAsy=AB$FAsy,NRich=AB$NRich,NBeta=AB$NBeta,NAsy=AB$NAsy)
+Env <- data.frame(AllSB=AB$AllSB,AllM=AB$AllM,AllSD=AB$AllSD,AboveSB=AB$AboveSB,AboveM=AB$AboveM,AboveSD=AB$AboveSD,BelowSB=AB$BelowSB,BelowM=AB$BelowM,BelowSD=AB$BelowSD,CminSB=AB$CminSB,CminM=AB$CminM,CminSD=AB$CminSD,NminSB=AB$NminSB,NminM=AB$NminM,NminSD=AB$NminSD,RSSB=AB$RSSB,RSM=AB$RSM,RSSD=AB$RSSD,TMBSB=AB$TMBSB,TMBM=AB$TMBM,TMBSD=AB$TMBSD,TNASB=AB$TNASB,TNAM=AB$TNAM,TNASD=AB$TNASD)
+
+data.corr <- corr.test(rows, Env, method="pearson")
+data.r <- data.corr$r
+data.p <- data.corr$p
+
+getSig <- function(dc) {
+  sc <- ''
+  if (dc < 0.001) sc <- '***'
+  else if (dc < 0.01) sc <- '**'
+  else if (dc < 0.05) sc <- '*'
+  else if (dc < 0.1) sc <- '#'
+  sc
+}
+
+sig.mat <- matrix(sapply(data.p, getSig), nrow=nrow(data.p))
+str(sig.mat)
+
+bk <- c(seq(-1,0,by=0.001),seq(0,1,by=0.001))
+B1<-pheatmap(data.r, clustering_method="average",cluster_cols=F,cluster_rows=F,display_numbers=sig.mat,show_rownames=T,color = c(colorRampPalette(colors = c("#77C034","white"))(length(bk)/2),colorRampPalette(colors = c("white","#C388FE"))(length(bk)/2)), legend_breaks=seq(-1,1,0.5),angle_col=90)
+
+pdf("Fig_S9.pdf", width =5, height =5)
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(2, 4)))
+vplayout <- function(x, y)
+  viewport(layout.pos.row = x, layout.pos.col = y)
+print(B1, vp = vplayout(1, 1))
+dev.off()
+
+
+##################################################################Figure_S10
+setwd("C:/Users/wangb/Desktop")
+data <- read_excel("Asy_GI.xlsx",2)
+AB <- data.frame(data)
+colnames(AB)
+rows <- data.frame(ABRich=AB$ABRich,PBRich=AB$PBRich,PFRich=AB$PFRich,PRRich=AB$PRRich,BCRich=AB$BCRich,BNRich=AB$BNRich,SapRich=AB$SapRich,PathRich=AB$PathRich,AMFRich=AB$AMFRich,BFRich=AB$BFRich,FFRich=AB$FFRich,HFRich=AB$HFRich,OCRich=AB$OCRich,ABBeta=AB$ABBeta,PBBeta=AB$PBBeta,PFBeta=AB$PFBeta,PRBeta=AB$PRBeta,BCBeta=AB$BCBeta,BNBeta=AB$BNBeta,SapBeta=AB$SapBeta,PathBeta=AB$PathBeta,AMFBeta=AB$AMFBeta,BFBeta=AB$BFBeta,FFBeta=AB$FFBeta,HFBeta=AB$HFBeta,OCBeta=AB$OCBeta,ABAsy=AB$ABAsy,PBAsy=AB$PBAsy,PFAsy=AB$PFAsy,PRAsy=AB$PRAsy,BCAsy=AB$BCAsy,BNAsy=AB$BNAsy,SapAsy=AB$SapAsy,PathAsy=AB$PathAsy,AMFAsy=AB$AMFAsy,BFAsy=AB$BFAsy,FFAsy=AB$FFAsy,HFAsy=AB$HFAsy,OCAsy=AB$OCAsy)
+Env <- data.frame(AllSB=AB$AllSB,AllM=AB$AllM,AllSD=AB$AllSD,AboveSB=AB$AboveSB,AboveM=AB$AboveM,AboveSD=AB$AboveSD,BelowSB=AB$BelowSB,BelowM=AB$BelowM,BelowSD=AB$BelowSD)
+
+data.corr <- corr.test(rows, Env, method="pearson")
+data.r <- data.corr$r 
+data.p <- data.corr$p 
+
+getSig <- function(dc) {
+  sc <- ''
+  if (dc < 0.001) sc <- '***'
+  else if (dc < 0.01) sc <- '**'
+  else if (dc < 0.05) sc <- '*'
+  else if (dc < 0.1) sc <- '#'
+  sc
+}
+
+sig.mat <- matrix(sapply(data.p, getSig), nrow=nrow(data.p))
+str(sig.mat)
+
+bk <- c(seq(-1,0,by=0.001),seq(0,1,by=0.001))
+B1<-pheatmap(data.r, clustering_method="average",cluster_cols=F,cluster_rows=F,display_numbers=sig.mat,show_rownames=T,color = c(colorRampPalette(colors = c("#77C034","white"))(length(bk)/2),colorRampPalette(colors = c("white","#C388FE"))(length(bk)/2)), legend_breaks=seq(-1,1,0.5),angle_col=90)
+
+pdf("Fig_S10.pdf", width =5, height =15)
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(2, 4)))
+vplayout <- function(x, y)
+  viewport(layout.pos.row = x, layout.pos.col = y)
+print(B1, vp = vplayout(1, 1))
+dev.off()
+
+##################################################################Figure_S11a
+data <- read_excel("Asy_GI.xlsx",2)
+AB <- data.frame(data)
+colnames(AB)
+
+M2<- list(
+  lme(PH~GRR+N+W,random=~1|Plot, data=AB),
+  lme(SM~GRR+W,random=~1|Plot, data=AB),
+  lme(SOC~GRR+N,random=~1|Plot, data=AB),
+  lme(AboveRich~W+BelowAsy,random=~1|Plot, data=AB),
+  lme(AboveBeta~GRR+N,random=~1|Plot,data=AB),
+  lme(BelowBeta~GRR+PH+BelowAsy,random=~1|Plot,data=AB),
+  lme(CminM~N+BelowBeta+SOC,random=~1|Plot,data=AB),
+  lme(CminSD~N,random=~1|Plot,data=AB),
+  SOC%~~%SM,
+  CminSD%~~%CminSB,
+  CminSD%~~%CminM)
+
+summary(as.psem(M2), .progressBar = F)
+plot(as.psem(M2))
+
+##################################################################Figure_S11b
+M2<- list(
+  lme(PH~GRR+N+W,random=~1|Plot, data=AB),
+  lme(SM~GRR+W,random=~1|Plot, data=AB),
+  lme(SOC~GRR+N,random=~1|Plot, data=AB),
+  lme(AboveRich~W+BelowAsy,random=~1|Plot, data=AB),
+  lme(AboveBeta~GRR+N,random=~1|Plot,data=AB),
+  lme(BelowBeta~GRR+PH+BelowAsy,random=~1|Plot,data=AB),
+  lme(NminM~N+SM+PH,random=~1|Plot,data=AB),
+  lme(NminSD~SM,random=~1|Plot,data=AB),
+  lme(NminSB~AboveRich,random=~1|Plot,data=AB),
+  SOC%~~%SM,
+  NminSD%~~%NminSB,
+  NminM%~~%NminSB)
+
+summary(as.psem(M2), .progressBar = F)
+plot(as.psem(M2))
+
+##################################################################Figure_S11c
+M2<- list(
+  lme(PH~GRR+N+W,random=~1|Plot, data=AB),
+  lme(SM~GRR+W,random=~1|Plot, data=AB),
+  lme(SOC~GRR+N,random=~1|Plot, data=AB),
+  lme(AboveRich~W+BelowAsy,random=~1|Plot, data=AB),
+  lme(AboveBeta~GRR+N,random=~1|Plot,data=AB),
+  lme(BelowBeta~GRR+PH+BelowAsy,random=~1|Plot,data=AB),
+  lme(RSM~W+SM,random=~1|Plot,data=AB),
+  lme(RSSD~GRR+AboveAsy+AboveBeta+SM,random=~1|Plot,data=AB),
+  lme(RSSB~AboveRich+AboveAsy,random=~1|Plot,data=AB),
+  SOC%~~%SM,
+  RSSD%~~%RSSB)
+
+summary(as.psem(M2), .progressBar = F)
+plot(as.psem(M2))
+
+##################################################################Figure_S11d
+M2<- list(
+  lme(PH~GRR+N+W,random=~1|Plot, data=AB),
+  lme(SM~GRR+W,random=~1|Plot, data=AB),
+  lme(SOC~GRR+N,random=~1|Plot, data=AB),
+  lme(AboveRich~W+BelowAsy,random=~1|Plot, data=AB),
+  lme(AboveBeta~GRR+N,random=~1|Plot,data=AB),
+  lme(BelowBeta~GRR+PH+BelowAsy,random=~1|Plot,data=AB),
+  lme(TMBM~GRR+N+BelowBeta+PH,random=~1|Plot,data=AB),
+  SOC%~~%SM,
+  TMBSD%~~%TMBSB,
+  TMBM%~~%TMBSB)
+
+summary(as.psem(M2), .progressBar = F)
+plot(as.psem(M2))
+
+##################################################################Figure_S11e
+M2<- list(
+  lme(PH~GRR+N+W,random=~1|Plot, data=AB),
+  lme(SM~GRR+W,random=~1|Plot, data=AB),
+  lme(SOC~GRR+N,random=~1|Plot, data=AB),
+  lme(AboveRich~W+BelowAsy,random=~1|Plot, data=AB),
+  lme(AboveBeta~GRR+N,random=~1|Plot,data=AB),
+  lme(BelowBeta~GRR+PH+BelowAsy,random=~1|Plot,data=AB),
+  lme(TNAM~W+BelowBeta,random=~1|Plot,data=AB),
+  lme(TNASD~N+AboveRich+BelowBeta+BelowAsy,random=~1|Plot,data=AB),
+  lme(TNASB~AboveRich+BelowAsy,random=~1|Plot,data=AB),
+  SOC%~~%SM,
+  TNASD%~~%TNASB,
+  TNASD%~~%TNAM)
+
+summary(as.psem(M2), .progressBar = F)
+plot(as.psem(M2))
+
+##################################################################Figure_S12
+setwd("C:/Users/wangb/Desktop")
+data <- read_excel("Asy_GI.xlsx",4)
+AB <- data.frame(data)
+colnames(AB)
+rows <- data.frame(Above.rich=AB$Above.rich,Above.beta=AB$Above.beta,Above.asy=AB$Above.asy,Below.rich=AB$Below.rich,Below.beta=AB$Below.beta,Below.asy=AB$Below.asy,BRich=AB$BRich,BBeta=AB$BBeta,BAsy=AB$BAsy,FRich=AB$FRich,FBeta=AB$FBeta,FAsy=AB$FAsy,NRich=AB$NRich,NBeta=AB$NBeta,NAsy=AB$NAsy)
+Env <- data.frame(All.sta=AB$All.sta,All.mean=AB$All.mean,All.sd=AB$All.sd,Above.sta=AB$Above.sta,Above.mean=AB$Above.mean,Above.sd=AB$Above.sd,Below.sta=AB$Below.sta,Below.mean=AB$Below.mean,Below.sd=AB$Below.sd,Cmin.sta=AB$Cmin.sta,Cmin.mean=AB$Cmin.mean,Cmin.sd=AB$Cmin.sd,Nmin.sta=AB$Nmin.sta,Nmin.mean=AB$Nmin.mean,Nmin.sd=AB$Nmin.sd,TFA.sta=AB$TFA.sta,TFA.mean=AB$TFA.mean,TFA.sd=AB$TFA.sd,TNA.sta=AB$TNA.sta,TNA.mean=AB$TNA.mean,TNA.sd=AB$TNA.sd)
+
+data.corr <- corr.test(rows, Env, method="pearson")
+data.r <- data.corr$r 
+data.p <- data.corr$p 
+
+getSig <- function(dc) {
+  sc <- ''
+  if (dc < 0.001) sc <- '***'
+  else if (dc < 0.01) sc <- '**'
+  else if (dc < 0.05) sc <- '*'
+  else if (dc < 0.1) sc <- '#'
+  sc
+}
+
+sig.mat <- matrix(sapply(data.p, getSig), nrow=nrow(data.p))
+str(sig.mat)
+
+bk <- c(seq(-1,0,by=0.001),seq(0,1,by=0.001))
+B1<-pheatmap(data.r, clustering_method="average",cluster_cols=F,cluster_rows=F,display_numbers=sig.mat,show_rownames=T,color = c(colorRampPalette(colors = c("#77C034","white"))(length(bk)/2),colorRampPalette(colors = c("white","#C388FE"))(length(bk)/2)), legend_breaks=seq(-1,1,0.5),angle_col=90)
+
+pdf("Fig_S12.pdf", width =7, height =5)
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(2, 4)))
+vplayout <- function(x, y)
+  viewport(layout.pos.row = x, layout.pos.col = y)
+print(B1, vp = vplayout(1, 1))
+dev.off()
+
+##################################################################Figure_S13
+setwd("C:/Users/wangb/Desktop")
+data <- read_excel("Asy_GI.xlsx",4)
+AB <- data.frame(data)
+colnames(AB)
+rows <- data.frame(ABRich=AB$ABRich,PBRich=AB$PBRich,PFRich=AB$PFRich,PRRich=AB$PRRich,BCRich=AB$BCRich,BNRich=AB$BNRich,SAPRich=AB$SAPRich,PATHRich=AB$PATHRich,AMFRich=AB$AMFRich,BFRich=AB$BFRich,FFRich=AB$FFRich,HFRich=AB$HFRich,OCRich=AB$OCRich,ABBeta=AB$ABBeta,PBBeta=AB$PBBeta,PFBeta=AB$PFBeta,PRBeta=AB$PRBeta,BCBeta=AB$BCBeta,BNBeta=AB$BNBeta,SAPBeta=AB$SAPBeta,PATHBeta=AB$PATHBeta,AMFBeta=AB$AMFBeta,BFBeta=AB$BFBeta,FFBeta=AB$FFBeta,HFBeta=AB$HFBeta,OCBeta=AB$OCBeta,ABAsy=AB$ABAsy,PBAsy=AB$PBAsy,PFAsy=AB$PFAsy,PRAsy=AB$PRAsy,BCAsy=AB$BCAsy,BNAsy=AB$BNAsy,SAPAsy=AB$SAPAsy,PATHAsy=AB$PATHAsy,AMFAsy=AB$AMFAsy,BFAsy=AB$BFAsy,FFAsy=AB$FFAsy,HFAsy=AB$HFAsy,OCAsy=AB$OCAsy)
+Env <- data.frame(All.sta=AB$All.sta,All.mean=AB$All.mean,All.sd=AB$All.sd,Above.sta=AB$Above.sta,Above.mean=AB$Above.mean,Above.sd=AB$Above.sd,Below.sta=AB$Below.sta,Below.mean=AB$Below.mean,Below.sd=AB$Below.sd)
+
+data.corr <- corr.test(rows, Env, method="pearson")
+data.r <- data.corr$r 
+data.p <- data.corr$p 
+
+getSig <- function(dc) {
+  sc <- ''
+  if (dc < 0.001) sc <- '***'
+  else if (dc < 0.01) sc <- '**'
+  else if (dc < 0.05) sc <- '*'
+  else if (dc < 0.1) sc <- '#'
+  sc
+}
+
+sig.mat <- matrix(sapply(data.p, getSig), nrow=nrow(data.p))
+str(sig.mat)
+
+bk <- c(seq(-1,0,by=0.001),seq(0,1,by=0.001))
+B1<-pheatmap(data.r, clustering_method="average",cluster_cols=F,cluster_rows=F,display_numbers=sig.mat,show_rownames=T,color = c(colorRampPalette(colors = c("#77C034","white"))(length(bk)/2),colorRampPalette(colors = c("white","#C388FE"))(length(bk)/2)), legend_breaks=seq(-1,1,0.5),angle_col=90)
+
+pdf("Fig_S13.pdf", width =5, height =15)
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(2, 4)))
+vplayout <- function(x, y)
+  viewport(layout.pos.row = x, layout.pos.col = y)
+print(B1, vp = vplayout(1, 1))
+dev.off()
+
+
+##################################################################Figure_S14a
+setwd("C:/Users/wangb/Desktop")
+data <- read_excel("Asy_GI.xlsx",4)
+AB <- data.frame(data)
+colnames(AB)
+
+M2 <- list(
+  lm(Cmin.sta~Above.rich,data=AB),
+  lm(Above.asy~ Above.rich, data=AB),
+  lm(Below.asy~ Below.rich, data=AB),
+  lm(Cmin.sd~Above.rich, data=AB), 
+  Cmin.sd%~~%Cmin.sta, Cmin.mean%~~%Cmin.sd)
+summary(as.psem(M2), .progressBar = F)
+plot(as.psem(M2))
+
+##################################################################Figure_S14b
+M2 <- list(
+  lm(Above.asy~ Above.rich, data=AB),
+  lm(Below.asy~ Below.rich, data=AB),
+  lm(Nmin.sd~Below.beta, data=AB), 
+  Nmin.sd%~~%Nmin.sta,Nmin.mean%~~%Nmin.sd)
+summary(as.psem(M2), .progressBar = F)
+plot(as.psem(M2))
+
+##################################################################Figure_S14c
+M2 <- list( 
+  lm(Above.asy~ Above.rich, data=AB),
+  lm(Below.asy~ Below.rich, data=AB),
+  TFA.sd%~~%TFA.sta)
+summary(as.psem(M2), .progressBar = F)
+plot(as.psem(M2))
+
+##################################################################Figure_S14d
+M2 <- list(
+  lm(TNA.sta~ Above.asy +Below.asy,data=AB),
+  lm(Above.asy~ Above.rich, data=AB),
+  lm(Below.asy~ Below.rich, data=AB),
+  lm(TNA.sd~Below.asy, data=AB),
+  TNA.sd%~~%TNA.sta, TNA.mean%~~%TNA.sd)
+summary(as.psem(M2), .progressBar = F)
+plot(as.psem(M2))
+
+##################################################################Figure_S15
+setwd("C:/Users/wangb/Desktop")
+data <- read_excel("Asy_GI.xlsx",2)
+AB <- data.frame(data)
+colnames(AB)
+
+B1<-ggplot()+
+  geom_point(aes(y=AB$AllM,x=AB$AboveRich),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$AllM,x=AB$AboveRich),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="solid")+geom_point(aes(y=AB$AllM,x=AB$AboveBeta),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$AllM,x=AB$AboveBeta),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized plant biodiversity")+ylab("Mean of TMF") 
+B2<-ggplot()+
+  geom_point(aes(y=AB$AllM,x=AB$BelowRich),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$AllM,x=AB$BelowRich),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="solid")+geom_point(aes(y=AB$AllM,x=AB$BelowBeta),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$AllM,x=AB$BelowBeta),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized soil biodiversity")+ylab("Mean of TMF") 
+B3<-ggplot()+
+  geom_point(aes(y=AB$AboveM,x=AB$AboveRich),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$AboveM,x=AB$AboveRich),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="solid")+geom_point(aes(y=AB$AboveM,x=AB$AboveBeta),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$AboveM,x=AB$AboveBeta),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized plant biodiversity")+ylab("Mean of ANPP") 
+B4<-ggplot()+
+  geom_point(aes(y=AB$AboveM,x=AB$BelowRich),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$AboveM,x=AB$BelowRich),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="solid")+geom_point(aes(y=AB$AboveM,x=AB$BelowBeta),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$AboveM,x=AB$BelowBeta),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized soil biodiversity")+ylab("Mean of ANPP") 
+B5<-ggplot()+
+  geom_point(aes(y=AB$BelowM,x=AB$AboveRich),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$BelowM,x=AB$AboveRich),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="solid")+geom_point(aes(y=AB$BelowM,x=AB$AboveBeta),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$BelowM,x=AB$AboveBeta),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized plant biodiversity")+ylab("Mean of BMF") 
+B6<-ggplot()+
+  geom_point(aes(y=AB$BelowM,x=AB$BelowRich),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$BelowM,x=AB$BelowRich),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="solid")+geom_point(aes(y=AB$BelowM,x=AB$BelowBeta),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$BelowM,x=AB$BelowBeta),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized soil biodiversity")+ylab("Mean of BMF") 
+pdf("Fig_S15.pdf", width =10, height =9)
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(3, 4)))
+vplayout <- function(x, y)
+  viewport(layout.pos.row = x, layout.pos.col = y)
+print(B1, vp = vplayout(1, 1))
+print(B2, vp = vplayout(2, 1))
+print(B3, vp = vplayout(1, 2))
+print(B4, vp = vplayout(2, 2))
+print(B5, vp = vplayout(1, 3))
+print(B6, vp = vplayout(2, 3))
+dev.off()
+
+
+##################################################################Figure_S16
+setwd("C:/Users/wangb/Desktop")
+data <- read_excel("Asy_GI.xlsx",4)
+AB <- data.frame(data)
+colnames(AB)
+B1<-ggplot()+
+  geom_point(aes(y=AB$All.mean,x=AB$Above.rich),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$All.mean,x=AB$Above.rich),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="dashed")+geom_point(aes(y=AB$All.mean,x=AB$Above.beta),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$All.mean,x=AB$Above.beta),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="dashed")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized plant biodiversity")+ylab("Mean of TMF") 
+B2<-ggplot()+
+  geom_point(aes(y=AB$All.mean,x=AB$Below.rich),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$All.mean,x=AB$Below.rich),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="dashed")+geom_point(aes(y=AB$All.mean,x=AB$Below.beta),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$All.mean,x=AB$Below.beta),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="dashed")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized soil biodiversity")+ylab("Mean of TMF") 
+B3<-ggplot()+
+  geom_point(aes(y=AB$Above.mean,x=AB$Above.rich),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$Above.mean,x=AB$Above.rich),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="dashed")+geom_point(aes(y=AB$Above.mean,x=AB$Above.beta),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$Above.mean,x=AB$Above.beta),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="dashed")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized plant biodiversity")+ylab("Mean of ANPP") 
+B4<-ggplot()+
+  geom_point(aes(y=AB$Above.mean,x=AB$Below.rich),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$Above.mean,x=AB$Below.rich),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="dashed")+geom_point(aes(y=AB$Above.mean,x=AB$Below.beta),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$Above.mean,x=AB$Below.beta),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="dashed")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized soil biodiversity")+ylab("Mean of ANPP") 
+B5<-ggplot()+
+  geom_point(aes(y=AB$Below.mean,x=AB$Above.rich),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$Below.mean,x=AB$Above.rich),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="dashed")+geom_point(aes(y=AB$Below.mean,x=AB$Above.beta),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$Below.mean,x=AB$Above.beta),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="dashed")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized plant biodiversity")+ylab("Mean of BMF") 
+B6<-ggplot()+
+  geom_point(aes(y=AB$Below.mean,x=AB$Below.rich),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$Below.mean,x=AB$Below.rich),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="dashed")+geom_point(aes(y=AB$Below.mean,x=AB$Below.beta),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$Below.mean,x=AB$Below.beta),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="dashed")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized soil biodiversity")+ylab("Mean of BMF") 
+pdf("Fig_S16.pdf", width =10, height =9)
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(3, 4)))
+vplayout <- function(x, y)
+  viewport(layout.pos.row = x, layout.pos.col = y)
+print(B1, vp = vplayout(1, 1))
+print(B2, vp = vplayout(2, 1))
+print(B3, vp = vplayout(1, 2))
+print(B4, vp = vplayout(2, 2))
+print(B5, vp = vplayout(1, 3))
+print(B6, vp = vplayout(2, 3))
+dev.off()
+
+##################################################################Figure_S17
+setwd("C:/Users/wangb/Desktop")
+data <- read_excel("Asy_GI.xlsx",4)
+AB <- data.frame(data)
+colnames(AB)
+
+B1<-ggplot()+
+  geom_point(aes(y=AB$Above.asy,x=AB$Above.rich),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$Above.asy,x=AB$Above.rich),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized plant diversity")+ylab("Standardized plant asynchrony") 
+B2<-ggplot()+
+  geom_point(aes(y=AB$Below.asy,x=AB$Below.rich),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$Below.asy,x=AB$Below.rich),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized soil diversity")+ylab("Standardized soil asynchrony") 
+B3<-ggplot()+
+  geom_point(aes(y=AB$Above.sta,x=AB$Above.rich),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$Above.sta,x=AB$Above.rich),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized plant diversity")+ylab("Stability of ANPP") 
+B4<-ggplot()+
+  geom_point(aes(y=AB$Below.sta,x=AB$Below.rich),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$Below.sta,x=AB$Below.rich),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="dashed")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized soil diversity")+ylab("Stability of BMF") 
+B5<-ggplot()+
+  geom_point(aes(y=AB$Above.sta,x=AB$Above.asy),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$Above.sta,x=AB$Above.asy),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized plant asynchrony")+ylab("Stability of ANPP") 
+B6<-ggplot()+
+  geom_point(aes(y=AB$Below.sta,x=AB$Below.asy),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$Below.sta,x=AB$Below.asy),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized soil asynchrony")+ylab("Stability of BMF") 
+
+pdf("Fig_S17.pdf", width =10, height =9)
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(3, 4)))
+vplayout <- function(x, y)
+  viewport(layout.pos.row = x, layout.pos.col = y)
+print(B1, vp = vplayout(1, 1))
+print(B2, vp = vplayout(2, 1))
+print(B3, vp = vplayout(1, 2))
+print(B4, vp = vplayout(2, 2))
+print(B5, vp = vplayout(1, 3))
+print(B6, vp = vplayout(2, 3))
+dev.off()
+
+##################################################################Figure_S18
+setwd("C:/Users/wangb/Desktop")
+data <- read_excel("Asy_GI.xlsx",2)
+AB <- data.frame(data)
+colnames(AB)
+
+B1<-ggplot()+
+  geom_point(aes(y=AB$AboveAsy,x=AB$AboveRich),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$AboveAsy,x=AB$AboveRich),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="dashed")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized plant diversity")+ylab("Standardized plant asynchrony") 
+B2<-ggplot()+
+  geom_point(aes(y=AB$BelowAsy,x=AB$BelowRich),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$BelowAsy,x=AB$BelowRich),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="dashed")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized soil diversity")+ylab("Standardized soil asynchrony") 
+B3<-ggplot()+
+  geom_point(aes(y=AB$AboveSB,x=AB$AboveRich),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$AboveSB,x=AB$AboveRich),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="dashed")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized plant diversity")+ylab("Stability of ANPP") 
+B4<-ggplot()+
+  geom_point(aes(y=AB$BelowSB,x=AB$BelowRich),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$BelowSB,x=AB$BelowRich),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="dashed")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized soil diversity")+ylab("Stability of BMF") 
+B5<-ggplot()+
+  geom_point(aes(y=AB$AboveSB,x=AB$AboveAsy),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$AboveSB,x=AB$AboveAsy),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized plant asynchrony")+ylab("Stability of ANPP") 
+B6<-ggplot()+
+  geom_point(aes(y=AB$BelowSB,x=AB$BelowAsy),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$BelowSB,x=AB$BelowAsy),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized soil asynchrony")+ylab("Stability of BMF") 
+
+pdf("Fig_S18.pdf", width =10, height =9)
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(3, 4)))
+vplayout <- function(x, y)
+  viewport(layout.pos.row = x, layout.pos.col = y)
+print(B1, vp = vplayout(1, 1))
+print(B2, vp = vplayout(2, 1))
+print(B3, vp = vplayout(1, 2))
+print(B4, vp = vplayout(2, 2))
+print(B5, vp = vplayout(1, 3))
+print(B6, vp = vplayout(2, 3))
+dev.off()
+
+##################################################################Figure_S19
+setwd("C:/Users/wangb/Desktop")
+data <- read_excel("Asy_GI.xlsx",2)
+AB <- data.frame(data)
+colnames(AB)
+
+B1<-ggplot()+
+  geom_point(aes(y=AB$AllSB,x=AB$AllM),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$AllSB,x=AB$AllM),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="solid")+geom_point(aes(y=AB$AllSB,x=AB$AllSD),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$AllSB,x=AB$AllSD),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized Mean/SD")+ylab("Standardized stability")   
+
+B2<-ggplot()+
+  geom_point(aes(y=AB$AboveSB,x=AB$AboveM),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$AboveSB,x=AB$AboveM),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="dashed")+geom_point(aes(y=AB$AboveSB,x=AB$AboveSD),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$AboveSB,x=AB$AboveSD),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized Mean/SD")+ylab("Standardized stability")   
+
+B3<-ggplot()+
+  geom_point(aes(y=AB$BelowSB,x=AB$BelowM),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$BelowSB,x=AB$BelowM),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="solid")+geom_point(aes(y=AB$BelowSB,x=AB$BelowSD),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$BelowSB,x=AB$BelowSD),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized Mean/SD")+ylab("Standardized stability")  
+
+B4<-ggplot()+
+  geom_point(aes(y=AB$CminSB,x=AB$CminM),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$CminSB,x=AB$CminM),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="solid")+geom_point(aes(y=AB$CminSB,x=AB$CminSD),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$CminSB,x=AB$CminSD),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized Mean/SD")+ylab("Standardized stability")  
+
+B5<-ggplot()+
+  geom_point(aes(y=AB$NminSB,x=AB$NminM),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$NminSB,x=AB$NminM),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="solid")+geom_point(aes(y=AB$NminSB,x=AB$NminSD),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$NminSB,x=AB$NminSD),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized Mean/SD")+ylab("Standardized stability")  
+
+B6<-ggplot()+
+  geom_point(aes(y=AB$RSSB,x=AB$RSM),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$RSSB,x=AB$RSM),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="solid")+geom_point(aes(y=AB$RSSB,x=AB$RSSD),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$RSSB,x=AB$RSSD),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized Mean/SD")+ylab("Standardized stability")  
+
+B7<-ggplot()+
+  geom_point(aes(y=AB$TMBSB,x=AB$TMBM),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$TMBSB,x=AB$TMBM),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="solid")+geom_point(aes(y=AB$TMBSB,x=AB$TMBSD),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$TMBSB,x=AB$TMBSD),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized Mean/SD")+ylab("Standardized stability")  
+
+B8<-ggplot()+
+  geom_point(aes(y=AB$TNASB,x=AB$TNAM),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$TNASB,x=AB$TNAM),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="dashed")+geom_point(aes(y=AB$TNASB,x=AB$TNASD),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$TNASB,x=AB$TNASD),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized Mean/SD")+ylab("Standardized stability") 
+
+pdf("Fig_S19.pdf", width =10, height =9)
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(3, 4)))
+vplayout <- function(x, y)
+  viewport(layout.pos.row = x, layout.pos.col = y)
+print(B1, vp = vplayout(1, 1))
+print(B2, vp = vplayout(1, 2))
+print(B3, vp = vplayout(1, 3))
+print(B4, vp = vplayout(1, 4))
+print(B5, vp = vplayout(2, 1))
+print(B6, vp = vplayout(2, 2))
+print(B7, vp = vplayout(2, 3))
+print(B8, vp = vplayout(2, 4))
+dev.off()
+
+##################################################################Figure_S20
+setwd("C:/Users/wangb/Desktop")
+data <- read_excel("Asy_GI.xlsx",4)
+AB <- data.frame(data)
+colnames(AB)
+B1<-ggplot()+
+  geom_point(aes(y=AB$All.sta,x=AB$All.mean),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$All.sta,x=AB$All.mean),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="dashed")+geom_point(aes(y=AB$All.sta,x=AB$All.sd),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$All.sta,x=AB$All.sd),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized Mean/.sd")+ylab("Standardized stability")   
+
+B2<-ggplot()+
+  geom_point(aes(y=AB$Above.sta,x=AB$Above.mean),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$Above.sta,x=AB$Above.mean),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="dashed")+geom_point(aes(y=AB$Above.sta,x=AB$Above.sd),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$Above.sta,x=AB$Above.sd),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized Mean/.sd")+ylab("Standardized stability")   
+
+B3<-ggplot()+
+  geom_point(aes(y=AB$Below.sta,x=AB$Below.mean),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$Below.sta,x=AB$Below.mean),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="dashed")+geom_point(aes(y=AB$Below.sta,x=AB$Below.sd),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$Below.sta,x=AB$Below.sd),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized Mean/.sd")+ylab("Standardized stability")  
+
+B4<-ggplot()+
+  geom_point(aes(y=AB$Cmin.sta,x=AB$Cmin.mean),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$Cmin.sta,x=AB$Cmin.mean),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="dashed")+geom_point(aes(y=AB$Cmin.sta,x=AB$Cmin.sd),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$Cmin.sta,x=AB$Cmin.sd),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized Mean/.sd")+ylab("Standardized stability")  
+
+B5<-ggplot()+
+  geom_point(aes(y=AB$Nmin.sta,x=AB$Nmin.mean),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$Nmin.sta,x=AB$Nmin.mean),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="dashed")+geom_point(aes(y=AB$Nmin.sta,x=AB$Nmin.sd),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$Nmin.sta,x=AB$Nmin.sd),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized Mean/.sd")+ylab("Standardized stability")  
+
+B7<-ggplot()+
+  geom_point(aes(y=AB$TFA.sta,x=AB$TFA.mean),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$TFA.sta,x=AB$TFA.mean),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="dashed")+geom_point(aes(y=AB$TFA.sta,x=AB$TFA.sd),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$TFA.sta,x=AB$TFA.sd),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized Mean/.sd")+ylab("Standardized stability")  
+
+B8<-ggplot()+
+  geom_point(aes(y=AB$TNA.sta,x=AB$TNA.mean),size=1,alpha=1,colour="#008000")+geom_smooth(aes(y=AB$TNA.sta,x=AB$TNA.mean),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#008000",fill="#008000",linetype="dashed")+geom_point(aes(y=AB$TNA.sta,x=AB$TNA.sd),size=1,alpha=1,colour="#ff6600")+geom_smooth(aes(y=AB$TNA.sta,x=AB$TNA.sd),method="lm",alpha=0.3,span=2,linewidth=0.6,se=T,colour="#ff6600",fill="#ff6600",linetype="solid")+theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="right")+ theme(panel.border = element_rect(fill=NA,color="black", size=0.1, linetype="solid"))+theme(axis.text.y=element_text(angle =90,vjust =0.5,hjust=0.5))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.y=element_line(color="black",linewidth=0.1,lineend = 1))+theme(axis.ticks.x=element_line(color="black",linewidth=0.1,lineend = 1))+xlab("Standardized Mean/.sd")+ylab("Standardized stability") 
+
+pdf("Fig_S20.pdf", width =10, height =9)
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(3, 4)))
+vplayout <- function(x, y)
+  viewport(layout.pos.row = x, layout.pos.col = y)
+print(B1, vp = vplayout(1, 1))
+print(B2, vp = vplayout(1, 2))
+print(B3, vp = vplayout(1, 3))
+print(B4, vp = vplayout(2, 1))
+print(B5, vp = vplayout(2, 2))
+print(B7, vp = vplayout(2, 3))
+print(B8, vp = vplayout(2, 4))
+dev.off()
+
+##################################################################Figure_S21a
+setwd("C:/Users/wangb/Desktop")
+data <- read_excel("Asy_GI.xlsx",2)
+AB <- data.frame(data)
+colnames(AB)
+
+rows <- data.frame(BelowSB=AB$BelowSB,AboveAsy=AB$AboveAsy,BelowAsy=AB$BelowAsy)
+Env <- data.frame(AboveSB=AB$AboveSB,BelowSB=AB$BelowSB,AboveAsy=AB$AboveAsy)
+data.corr <- corr.test(rows, Env, method="pearson")
+data.r <- data.corr$r 
+data.p <- data.corr$p 
+
+getSig <- function(dc) {
+  sc <- ''
+  if (dc < 0.001) sc <- '***'
+  else if (dc < 0.01) sc <- '**'
+  else if (dc < 0.05) sc <- '*'
+  else if (dc < 0.1) sc <- '#'
+  sc
+}
+
+sig.mat <- matrix(sapply(data.p, getSig), nrow=nrow(data.p))
+str(sig.mat)
+range(data.r)
+bk <- c(seq(0,1,by=0.01))
+B1<-pheatmap(data.r, clustering_method="average",cluster_cols=F,cluster_rows=F,display_numbers=sig.mat,show_rownames=T,color = c(colorRampPalette(colors = c("white","#C388FE"))(length(bk)/2)), legend_breaks=seq(-1,1,0.5),angle_col=90)
+
+
+pdf("Fig_S21a.pdf", width =3.5, height =3)
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(2, 4)))
+vplayout <- function(x, y)
+  viewport(layout.pos.row = x, layout.pos.col = y)
+print(B1, vp = vplayout(1, 1))
+dev.off()
+
+##################################################################Figure_S21b
+setwd("C:/Users/wangb/Desktop")
+data <- read_excel("Asy_GI.xlsx",4)
+AB <- data.frame(data)
+colnames(AB)
+
+rows <- data.frame(Below.sta=AB$Below.sta,Above.asy=AB$Above.asy,Below.asy=AB$Below.asy)
+Env <- data.frame(Above.sta=AB$Above.sta,Below.sta=AB$Below.sta,Above.asy=AB$Above.asy)
+data.corr <- corr.test(rows, Env, method="pearson")
+data.r <- data.corr$r 
+data.p <- data.corr$p 
+
+getSig <- function(dc) {
+  sc <- ''
+  if (dc < 0.001) sc <- '***'
+  else if (dc < 0.01) sc <- '**'
+  else if (dc < 0.05) sc <- '*'
+  else if (dc < 0.1) sc <- '#'
+  sc
+}
+
+sig.mat <- matrix(sapply(data.p, getSig), nrow=nrow(data.p))
+str(sig.mat)
+range(data.r)
+bk <- c(seq(-0.5,-0.1,by=0.01),seq(0,1,by=0.01))
+B1<-pheatmap(data.r, clustering_method="average",cluster_cols=F,cluster_rows=F,display_numbers=sig.mat,show_rownames=T,color = c(colorRampPalette(colors = c("#77C034","white"))(length(bk)/2),colorRampPalette(colors = c("white","#C388FE"))(length(bk)/2)), legend_breaks=seq(-0.5,1,0.5),angle_col=90)
+
+
+pdf("Fig_S21b.pdf", width =3.5, height =3)
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(2, 4)))
+vplayout <- function(x, y)
+  viewport(layout.pos.row = x, layout.pos.col = y)
+print(B1, vp = vplayout(1, 1))
+dev.off()
